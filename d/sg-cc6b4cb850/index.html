@@ -1,0 +1,1273 @@
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>Território Gabardo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,600;6..96,700&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root{
+    --ground:#131011;
+    --ground-2:#1A1516;
+    --surface:#221C1E;
+    --surface-2:#2A2224;
+    --line:#382F32;
+    --line-soft:#291F22;
+    --ink:#F6EFEC;
+    --ink-2:#B3A29E;
+    --ink-3:#7B6A67;
+    --rose:#E8B4AC;
+    --rose-dim:#8C5E58;
+    --jade:#6FCBA4;
+    --jade-dim:#2F5F4E;
+    --violet:#A489E0;
+    --violet-dim:#4E3F70;
+    --coral:#F0705E;
+    --gold:#D9A441;
+    --rail:76px;
+    --maxw:1180px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+
+  body{
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- régua lateral ---------- */
+  .rail{
+    position:fixed; left:0; top:0; bottom:0; width:var(--rail);
+    background:var(--ground-2);
+    border-right:1px solid var(--line-soft);
+    display:flex; flex-direction:column; align-items:center;
+    padding:22px 0; gap:14px; z-index:40;
+  }
+  .rail-mark{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:9px; letter-spacing:.16em; color:var(--ink-3);
+    writing-mode:vertical-rl; text-orientation:mixed;
+    padding:2px 0;
+  }
+  .ticks{display:flex; flex-direction:column; gap:3px; flex:1; justify-content:center; width:100%; align-items:center}
+  .tick{
+    all:unset; cursor:pointer; display:block;
+    width:26px; height:2px; background:var(--line);
+    position:relative; transition:width .25s ease, background .25s ease;
+  }
+  .tick:hover{width:38px; background:var(--ink-3)}
+  .tick[aria-current="true"]{width:44px; height:2px; background:var(--rose)}
+  .tick:focus-visible{outline:2px solid var(--rose); outline-offset:4px}
+  .tick .tno{
+    position:absolute; left:52px; top:-11px;
+    font-family:"IBM Plex Mono",monospace; font-size:10px; color:var(--ink-2);
+    background:var(--surface); border:1px solid var(--line); border-radius:2px;
+    padding:4px 9px; box-shadow:0 6px 18px rgba(0,0,0,.5);
+    opacity:0; transition:opacity .18s ease; white-space:nowrap; pointer-events:none;
+  }
+  .tick:hover .tno,.tick:focus-visible .tno{opacity:1}
+  .rail-logo{
+    font-family:"IBM Plex Mono",monospace; font-size:9px; letter-spacing:.22em;
+    color:var(--rose-dim); writing-mode:vertical-rl; text-orientation:mixed;
+  }
+
+  /* ---------- barra de progresso (celular) ---------- */
+  .topbar{display:none}
+  @media(max-width:760px){
+    .topbar{
+      display:flex; align-items:center; gap:10px;
+      position:fixed; top:0; left:0; right:0; z-index:60;
+      height:38px; padding:0 16px;
+      background:rgba(19,16,17,.94); backdrop-filter:blur(8px);
+      border-bottom:1px solid var(--line-soft);
+    }
+    .topbar i{
+      position:absolute; left:0; bottom:-1px; height:2px; width:0;
+      background:var(--rose); transition:width .18s linear;
+    }
+    .tb-mark{
+      font-family:"IBM Plex Mono",monospace; font-size:9px; letter-spacing:.22em;
+      color:var(--rose-dim);
+    }
+    .tb-pos{
+      margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:10px;
+      letter-spacing:.08em; color:var(--ink-2); text-align:right;
+      max-width:62%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+  }
+
+  /* ---------- cenas ---------- */
+  .deck{
+    position:relative; margin-left:var(--rail);
+    height:100dvh; overflow-y:auto; overflow-x:hidden;
+    overscroll-behavior:contain;
+  }
+  .scene{
+    min-height:100dvh;
+    display:flex; align-items:center; align-items:safe center;
+    padding:54px 48px; border-bottom:1px solid var(--line-soft);
+  }
+  .wrap{width:100%; max-width:var(--maxw); margin:0 auto}
+
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--rose); margin:0 0 18px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:""; width:22px; height:1px; background:var(--rose-dim)}
+
+  h1,h2,h3{font-family:"Bodoni Moda",Georgia,"Times New Roman",serif; font-weight:400; text-wrap:balance; margin:0}
+  h1{font-size:clamp(31px,5.6vw,76px); line-height:1.05; letter-spacing:-.015em}
+  h2{font-size:clamp(25px,3.6vw,48px); line-height:1.1; letter-spacing:-.01em; margin-bottom:16px}
+  h3{font-size:20px; line-height:1.25}
+  .lede{
+    font-size:clamp(15.5px,1.35vw,19px); color:var(--ink-2); max-width:62ch; margin:0;
+  }
+  .lede strong{color:var(--ink); font-weight:600}
+  em.hl{font-style:normal; color:var(--rose)}
+
+  .grid{display:grid; gap:44px; align-items:start}
+  @media(min-width:1000px){ .grid.two{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)} }
+
+  .note{
+    font-family:"IBM Plex Mono",monospace; font-size:10.5px; line-height:1.65;
+    color:var(--ink-3); letter-spacing:.02em; margin:14px 0 0;
+  }
+  .note b{color:var(--ink-2); font-weight:500}
+
+  /* ---------- capa ---------- */
+  .cover{position:relative; overflow:hidden}
+  .cover canvas{position:absolute; inset:0; width:100%; height:100%; z-index:0}
+  .cover .wrap{position:relative; z-index:1}
+  .cover h1{max-width:16ch}
+  .cover-meta{
+    display:flex; flex-wrap:wrap; gap:0; margin-top:44px;
+    border-top:1px solid var(--line); padding-top:18px;
+  }
+  .cover-meta div{
+    padding-right:38px; margin-right:38px; border-right:1px solid var(--line-soft);
+  }
+  .cover-meta div:last-child{border-right:0}
+  .cover-meta dt{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--ink-3); margin:0 0 5px;
+  }
+  .cover-meta dd{margin:0; font-size:15px; color:var(--ink)}
+
+  /* ---------- faixa de números ---------- */
+  .strip{
+    display:grid; grid-template-columns:1fr 1fr;
+    border:1px solid var(--line); border-radius:2px; overflow:hidden; margin-top:34px;
+  }
+  .strip div{padding:16px 20px; border-right:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); background:var(--ground-2)}
+  .strip div:nth-child(2n){border-right:0}
+  .strip div:nth-last-child(-n+2){border-bottom:0}
+  .strip .n{
+    font-family:"Bodoni Moda",serif; font-size:34px; line-height:1;
+    font-variant-numeric:tabular-nums; display:block; margin-bottom:6px;
+  }
+  .strip .k{
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--ink-3); line-height:1.5; display:block;
+  }
+  .n.rose{color:var(--rose)} .n.coral{color:var(--coral)} .n.jade{color:var(--jade)} .n.gold{color:var(--gold)}
+
+  /* ---------- controles ---------- */
+  .tabs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px}
+  .tab{
+    all:unset; cursor:pointer;
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.04em;
+    padding:9px 14px; border:1px solid var(--line); border-radius:2px;
+    color:var(--ink-2); background:var(--ground-2); transition:.18s ease;
+  }
+  .tab:hover{border-color:var(--ink-3); color:var(--ink)}
+  .tab[aria-selected="true"]{background:var(--rose); color:#241012; border-color:var(--rose); font-weight:500}
+  .tab:focus-visible{outline:2px solid var(--rose); outline-offset:3px}
+
+  /* ---------- SERP ---------- */
+  .serp{
+    border:1px solid var(--line); border-radius:3px; background:var(--surface);
+    overflow:hidden;
+  }
+  .serp-bar{
+    display:flex; align-items:center; gap:10px; padding:12px 16px;
+    border-bottom:1px solid var(--line-soft); background:var(--ground-2);
+  }
+  .serp-bar .q{
+    flex:1; font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink);
+    background:var(--surface-2); border:1px solid var(--line); border-radius:100px;
+    padding:7px 14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .serp-bar .g{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em; color:var(--ink-3)}
+  .serp-list{max-height:min(52vh,440px); overflow-y:auto}
+  .res{
+    display:grid; grid-template-columns:34px 1fr; gap:12px;
+    padding:12px 18px; border-bottom:1px solid var(--line-soft);
+    animation:fade .32s ease both;
+  }
+  .res:last-child{border-bottom:0}
+  .res .pos{
+    font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3);
+    font-variant-numeric:tabular-nums; padding-top:3px;
+  }
+  .res .ttl{font-size:14.5px; line-height:1.35; color:var(--ink); margin:0 0 3px}
+  .res .src{font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--ink-3)}
+  .res .tagline{font-size:12.5px; color:var(--ink-2); margin:5px 0 0; line-height:1.45}
+  .res[data-kind="ela"]{background:rgba(232,180,172,.07); border-left:2px solid var(--rose)}
+  .res[data-kind="ela"] .pos{color:var(--rose)}
+  .res[data-kind="rival"] .src{color:var(--jade)}
+  .res[data-kind="phd"]{background:rgba(240,112,94,.06)}
+  .res[data-kind="phd"] .src{color:var(--coral)}
+  .chip{
+    display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:9.5px;
+    letter-spacing:.1em; text-transform:uppercase; padding:2px 7px; border-radius:2px;
+    margin-left:8px; vertical-align:1px;
+  }
+  .chip.ela{background:var(--rose); color:#241012}
+  .chip.site{background:var(--jade-dim); color:var(--jade)}
+  .chip.ig{background:var(--violet-dim); color:var(--violet)}
+  .chip.phd{background:rgba(240,112,94,.18); color:var(--coral)}
+  .verdict{
+    padding:16px 18px; background:var(--ground-2); border-top:1px solid var(--line);
+    font-size:14px; color:var(--ink-2); line-height:1.55;
+  }
+  .verdict b{color:var(--ink); font-weight:600}
+  @keyframes fade{from{opacity:0; transform:translateY(5px)} to{opacity:1; transform:none}}
+
+  /* ---------- barras comparativas ---------- */
+  .bars{display:flex; flex-direction:column; gap:2px}
+  .bar-row{
+    display:grid; grid-template-columns:minmax(120px,190px) 1fr 76px; gap:14px;
+    align-items:center; padding:11px 0; border-bottom:1px solid var(--line-soft);
+  }
+  .bar-row .who{font-size:14px; line-height:1.25}
+  .bar-row .who small{display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; color:var(--ink-3); margin-top:2px}
+  .bar-track{height:12px; background:var(--surface); border-radius:2px; overflow:hidden}
+  .bar-fill{display:block; height:100%; width:0; border-radius:2px; transition:width .7s cubic-bezier(.22,1,.36,1), background .3s}
+  .bar-row .val{
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; text-align:right;
+    font-variant-numeric:tabular-nums; color:var(--ink);
+  }
+  .bar-row.ela .who{color:var(--rose); font-weight:600}
+
+  /* ---------- mapa de páginas ---------- */
+  .pagemap{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px}
+  .pg{
+    all:unset; cursor:pointer; display:block; padding:14px;
+    border:1px solid var(--line); border-radius:3px; background:var(--surface);
+    transition:.18s ease; min-height:88px;
+  }
+  .pg:hover,.pg[aria-pressed="true"]{border-color:var(--rose); background:var(--surface-2)}
+  .pg:focus-visible{outline:2px solid var(--rose); outline-offset:3px}
+  .pg .url{display:block; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink); word-break:break-all; line-height:1.4}
+  .pg .st{
+    font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.1em;
+    text-transform:uppercase; margin-top:9px; display:block;
+  }
+  .pg[data-ix="1"] .st{color:var(--jade)}
+  .pg[data-ix="0"] .st{color:var(--ink-3)}
+  .pg .cat{display:block; font-size:12px; color:var(--ink-2); margin-top:5px}
+  .pgdetail{
+    margin-top:14px; padding:16px 18px; border:1px solid var(--line);
+    border-left:2px solid var(--rose); border-radius:3px; background:var(--ground-2);
+    font-size:14px; color:var(--ink-2); line-height:1.55; min-height:74px;
+  }
+  .pgdetail b{color:var(--ink); font-weight:600}
+
+  /* ---------- aluguel x patrimônio ---------- */
+  .rentbox{display:grid; gap:16px; grid-template-columns:1fr 1fr}
+  @media(max-width:700px){ .rentbox{grid-template-columns:1fr} }
+  .col{
+    border:1px solid var(--line); border-radius:3px; padding:20px; background:var(--surface);
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .col.paid{border-top:2px solid var(--violet)}
+  .col.own{border-top:2px solid var(--jade)}
+  .col h3{font-size:17px}
+  .col .tagk{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase}
+  .col.paid .tagk{color:var(--violet)} .col.own .tagk{color:var(--jade)}
+  .meter{height:132px; display:flex; align-items:flex-end; gap:6px; padding-top:6px}
+  .meter i{
+    display:block; flex:1; border-radius:1px 1px 0 0;
+    transition:height .6s cubic-bezier(.22,1,.36,1), opacity .5s ease;
+  }
+  .col.paid .meter i{background:linear-gradient(180deg,var(--violet),var(--violet-dim))}
+  .col.own .meter i{background:linear-gradient(180deg,var(--jade),var(--jade-dim))}
+  .col .figure{font-family:"Bodoni Moda",serif; font-size:30px; font-variant-numeric:tabular-nums; line-height:1}
+  .col .sub{font-size:13px; color:var(--ink-2); line-height:1.5}
+
+  .switch{
+    all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:11px;
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--ink-2); margin-top:6px;
+  }
+  .switch:focus-visible{outline:2px solid var(--rose); outline-offset:4px}
+  .switch .track{
+    width:46px; height:22px; border-radius:100px; background:var(--surface-2);
+    border:1px solid var(--line); position:relative; transition:.25s ease;
+  }
+  .switch .knob{
+    position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%;
+    background:var(--jade); transition:.25s cubic-bezier(.22,1,.36,1);
+  }
+  .switch[aria-pressed="true"] .track{background:rgba(240,112,94,.2); border-color:var(--coral)}
+  .switch[aria-pressed="true"] .knob{left:26px; background:var(--coral)}
+
+  /* ---------- GEO ---------- */
+  .machine{
+    border:1px solid var(--line); border-radius:3px; background:#0E0B0C;
+    font-family:"IBM Plex Mono",monospace; font-size:11.5px; line-height:1.8;
+    white-space:pre-wrap; padding:18px; color:var(--ink-2); min-height:280px; overflow-x:auto;
+  }
+  .machine .k{color:var(--violet)}
+  .machine .v{color:var(--ink)}
+  .machine .miss{color:var(--coral)}
+  .machine .add{color:var(--jade)}
+  .machine .cmt{color:var(--ink-3)}
+
+  /* ---------- simulador ---------- */
+  .sim{display:grid; gap:26px}
+  @media(min-width:900px){ .sim{grid-template-columns:1fr 1fr} }
+  .field{margin-bottom:20px}
+  .field label{
+    display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:4px 12px;
+    font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--ink-3); margin-bottom:9px;
+  }
+  .field label output{
+    font-size:15px; letter-spacing:0; text-transform:none; color:var(--rose);
+    font-variant-numeric:tabular-nums; font-weight:500; white-space:nowrap; margin-left:auto;
+  }
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:22px;
+    background:transparent; cursor:pointer; display:block;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:3px; background:var(--line); border-radius:2px}
+  input[type=range]::-moz-range-track{height:3px; background:var(--line); border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:var(--rose); margin-top:-6.5px; border:0;
+  }
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--rose); border:0}
+  input[type=range]:focus-visible{outline:2px solid var(--rose); outline-offset:6px; border-radius:4px}
+
+  .out{
+    border:1px solid var(--line); border-radius:3px; background:var(--surface); overflow:hidden;
+  }
+  .out .line{
+    display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+    padding:15px 20px; border-bottom:1px solid var(--line-soft);
+  }
+  .out .line:last-child{border-bottom:0}
+  .out .lbl{font-size:13.5px; color:var(--ink-2); line-height:1.4}
+  .out .num{
+    font-family:"Bodoni Moda",serif; font-size:26px; font-variant-numeric:tabular-nums;
+    white-space:nowrap; line-height:1;
+  }
+  .out .line.big{background:var(--ground-2)}
+  .out .line.big .num{font-size:38px; color:var(--jade)}
+  .out .line.rent .num{color:var(--violet)}
+
+  /* ---------- plano ---------- */
+  .phase{margin-bottom:26px}
+  .phase-h{
+    display:flex; align-items:baseline; gap:14px; padding-bottom:9px;
+    border-bottom:1px solid var(--line); margin-bottom:4px;
+  }
+  .phase-h .p{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--rose)}
+  .phase-h .t{font-family:"Bodoni Moda",serif; font-size:21px}
+  .phase-h .w{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--ink-3)}
+  .item{border-bottom:1px solid var(--line-soft)}
+  .item>button{
+    all:unset; cursor:pointer; display:flex; align-items:center; gap:14px;
+    width:100%; padding:13px 2px; font-size:14.5px; color:var(--ink); line-height:1.4;
+  }
+  .item>button:hover{color:var(--rose)}
+  .item>button:focus-visible{outline:2px solid var(--rose); outline-offset:2px}
+  .item .dot{width:6px; height:6px; border-radius:50%; background:var(--line); flex:none; transition:.2s}
+  .item[data-w="alto"] .dot{background:var(--coral)}
+  .item[data-w="medio"] .dot{background:var(--gold)}
+  .item[data-w="base"] .dot{background:var(--jade)}
+  .item .plus{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:14px; color:var(--ink-3); flex:none; transition:transform .25s}
+  .item[aria-expanded="true"] .plus{transform:rotate(45deg); color:var(--rose)}
+  .item .body{
+    display:none; padding:0 0 16px 20px; font-size:13.5px; color:var(--ink-2); line-height:1.6; max-width:74ch;
+  }
+  .item[aria-expanded="true"] .body{display:block; animation:fade .28s ease both}
+
+  /* ---------- callout ---------- */
+  .callout{
+    border:1px solid var(--line); border-left:2px solid var(--gold); border-radius:3px;
+    background:var(--ground-2); padding:18px 20px; margin-top:26px;
+  }
+  .callout .h{
+    font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--gold); margin-bottom:8px;
+  }
+  .callout p{margin:0; font-size:14px; color:var(--ink-2); line-height:1.6; max-width:74ch}
+  .callout p+p{margin-top:10px}
+  .callout b{color:var(--ink); font-weight:600}
+
+  .close-list{list-style:none; padding:0; margin:30px 0 0; display:grid; gap:0; max-width:62ch}
+  .close-list li{
+    padding:14px 0; border-bottom:1px solid var(--line-soft);
+    display:flex; gap:16px; align-items:baseline; font-size:15px; color:var(--ink-2); line-height:1.5;
+  }
+  .close-list li b{color:var(--ink); font-weight:600}
+  .close-list .m{font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--rose); flex:none; letter-spacing:.1em}
+
+  .hint{
+    position:fixed; right:22px; bottom:20px; z-index:50;
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em;
+    color:var(--ink-3); background:var(--ground-2); border:1px solid var(--line-soft);
+    padding:7px 12px; border-radius:2px; transition:opacity .5s ease;
+  }
+
+  @media(max-width:760px){
+    :root{--rail:0px}
+    .rail,.hint{display:none}
+    .deck{height:auto; overflow:visible; margin-left:0}
+    .scene{padding:40px 20px 46px; min-height:0; display:block}
+    .scene.cover{
+      display:flex; flex-direction:column; justify-content:center;
+      padding-top:70px; min-height:100svh;
+    }
+    .wrap{max-width:none}
+    .grid{gap:28px}
+    .eyebrow{margin-bottom:14px}
+
+    .cover h1{max-width:none}
+    .cover-meta{flex-direction:column; gap:14px; margin-top:30px}
+    .cover-meta div{padding-right:0; margin-right:0; border-right:0}
+
+    .strip{margin-top:24px}
+    .strip .n{font-size:27px}
+    .strip div{padding:13px 14px}
+
+    .tabs{gap:6px; margin-bottom:16px}
+    .tab{font-size:11px; padding:8px 11px}
+
+    .serp-list{max-height:none; overflow:visible}
+    .res{grid-template-columns:26px 1fr; gap:9px; padding:11px 13px}
+    .res .ttl{font-size:14px}
+    .serp-bar{padding:10px 13px}
+    .serp-bar .g{display:none}
+    .verdict{padding:14px}
+
+    .bar-row{
+      grid-template-columns:1fr auto; grid-template-areas:"who val" "track track";
+      gap:6px 12px; padding:12px 0;
+    }
+    .bar-row .who{grid-area:who} .bar-row .val{grid-area:val; text-align:right} .bar-track{grid-area:track}
+
+    .pagemap{grid-template-columns:1fr 1fr; gap:6px}
+    .pg{padding:11px; min-height:0}
+    .pg .url{font-size:10px} .pg .cat{font-size:11px} .pg .st{font-size:9px; margin-top:7px}
+    .pgdetail{font-size:13.5px; padding:14px}
+
+    .meter{height:104px; gap:4px}
+    .col{padding:16px}
+    .col .figure{font-size:26px}
+
+    .machine{font-size:10px; line-height:1.75; padding:14px; min-height:0; white-space:pre; overflow-x:auto}
+
+    .out .line{padding:13px 16px}
+    .out .num{font-size:23px}
+    .out .line.big{flex-direction:column; align-items:flex-start; gap:6px}
+    .out .line.big .num{font-size:34px}
+
+    .phase-h{flex-wrap:wrap; gap:6px 12px}
+    .phase-h .w{margin-left:0; width:100%}
+    .item>button{font-size:14px; gap:11px; align-items:flex-start}
+    .item .dot{margin-top:7px}
+    .item .plus{margin-top:1px}
+    .item .body{padding-left:17px}
+
+    .callout{padding:15px 16px; margin-top:20px}
+    .close-list li{gap:12px; font-size:14.5px}
+    .note{font-size:10px}
+  }
+  @media(max-width:400px){
+    .pagemap{grid-template-columns:1fr}
+    .strip{grid-template-columns:1fr}
+    .strip div{border-right:0; border-bottom:1px solid var(--line-soft)}
+    .strip div:last-child{border-bottom:0}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms !important; transition-duration:.01ms !important}
+  }
+</style>
+
+<div class="topbar" aria-hidden="true"><i id="topfill"></i><span class="tb-mark">ADSVENTURE</span><span class="tb-pos" id="tbpos"></span></div>
+<nav class="rail" aria-label="Navegação da apresentação">
+  <span class="rail-mark">21.08.2026</span>
+  <div class="ticks" id="ticks"></div>
+  <span class="rail-logo">ADSVENTURE</span>
+</nav>
+
+<main class="deck" id="deck">
+
+  <!-- 1 -->
+  <section class="scene cover" data-t="Capa">
+    <canvas id="contour" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <p class="eyebrow">Instituto Suellen Gabardo · Curitiba</p>
+      <h1>84 mil pessoas te seguem.<br>O Google ainda não sabe quem você é.</h1>
+      <p class="lede" style="margin-top:26px">
+        Todo mês há gente em Curitiba digitando <em class="hl">harmonização glútea</em> no Google
+        com o cartão na mão. Hoje elas encontram o seu Instagram, ou encontram outra clínica.
+        Quase nunca encontram a sua.
+      </p>
+      <dl class="cover-meta">
+        <div><dt>Preparado para</dt><dd>Reunião com a Dra. Suellen Gabardo</dd></div>
+        <div><dt>Base</dt><dd>Diagnóstico de 11/08 + verificação de 21/08</dd></div>
+        <div><dt>Assunto</dt><dd>Orgânico, SEO e GEO</dd></div>
+      </dl>
+      <p class="note" style="margin-top:26px">Role a página. Os blocos com controle são interativos: mexa neles durante a conversa.</p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="scene" data-t="O que o Google devolve">
+    <div class="wrap">
+      <div class="grid two">
+        <div>
+          <p class="eyebrow">Cena 01 · O teste</p>
+          <h2>Três buscas, feitas hoje</h2>
+          <p class="lede">
+            Não é opinião de agência. São três pesquisas no Google de Curitiba,
+            rodadas em <strong>21 de agosto de 2026</strong>. Troque a busca
+            e veja o que aparece para quem quer comprar.
+          </p>
+          <div class="strip">
+            <div><span class="n rose">84 mil</span><span class="k">Seguidores<br>no Instagram</span></div>
+            <div><span class="n gold">43</span><span class="k">Avaliações<br>no Google</span></div>
+            <div><span class="n coral">2</span><span class="k">Páginas do site<br>indexadas</span></div>
+            <div><span class="n coral">0</span><span class="k">Páginas sobre<br>um procedimento</span></div>
+          </div>
+          <p class="note">
+            <b>Fontes:</b> perfil público do Instagram e ficha do Google Meu Negócio (diagnóstico de 11/08/2026);
+            busca <code>site:institutosuellengabardo.site</code> e leitura do sitemap do site, ambas em 21/08/2026.
+          </p>
+        </div>
+        <div>
+          <div class="tabs" role="tablist" aria-label="Buscas testadas">
+            <button class="tab" role="tab" aria-selected="true" data-q="0">harmonização glútea curitiba</button>
+            <button class="tab" role="tab" aria-selected="false" data-q="1">pump glúteo</button>
+            <button class="tab" role="tab" aria-selected="false" data-q="2">pump glúteo gabardo</button>
+          </div>
+          <div class="serp">
+            <div class="serp-bar">
+              <span class="g">GOOGLE.COM.BR</span>
+              <span class="q" id="serpq"></span>
+            </div>
+            <div class="serp-list" id="serplist"></div>
+            <div class="verdict" id="serpv"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="scene" data-t="Menos seguidores, mais território">
+    <div class="wrap">
+      <div class="grid two">
+        <div>
+          <p class="eyebrow">Cena 02 · A inversão</p>
+          <h2>Elas têm menos audiência e mais território</h2>
+          <p class="lede">
+            Seguidor e posição no Google são dois campeonatos diferentes.
+            Você ganha o primeiro com folga. O segundo está sendo jogado por clínicas
+            que você passa de longe no Instagram.
+          </p>
+          <p class="lede" style="margin-top:16px">
+            <strong>Round Glúteo</strong> é o caso que mais interessa: método de marca própria,
+            igual ao seu Pump Glúteo Gabardo. A diferença é que o método deles tem um site com o
+            nome dele. O seu mora no Instagram.
+          </p>
+          <p class="note">
+            <b>Fontes:</b> contagem de seguidores exibida pelo Google no resultado de cada perfil;
+            páginas indexadas via <code>site:dominio</code>; posição orgânica na busca
+            "harmonização glútea curitiba". Tudo verificado em 21/08/2026.
+          </p>
+        </div>
+        <div>
+          <div class="tabs" role="tablist" aria-label="Métrica comparada">
+            <button class="tab" role="tab" aria-selected="true" data-m="seg">Seguidores no Instagram</button>
+            <button class="tab" role="tab" aria-selected="false" data-m="pag">Páginas no Google</button>
+          </div>
+          <div class="bars" id="bars"></div>
+          <div class="verdict" style="border:1px solid var(--line); border-top:0; border-radius:0 0 3px 3px" id="barsv"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="scene" data-t="O site é da escola">
+    <div class="wrap">
+      <div class="grid two">
+        <div>
+          <p class="eyebrow">Cena 03 · O achado</p>
+          <h2>O site que existe é da escola, não da clínica</h2>
+          <p class="lede">
+            O site tem oito páginas. Cinco são do funil de curso, uma é lista de links,
+            uma é sobre um equipamento e uma é a home.
+            <strong>Nenhuma é sobre um procedimento da clínica.</strong>
+          </p>
+          <p class="lede" style="margin-top:16px">
+            Isso explica a cena anterior sem precisar de teoria de SEO: o Google não esconde
+            a página de harmonização glútea do Instituto. Ela não existe.
+          </p>
+          <p class="note">Clique em cada página. <b>Fonte:</b> sitemap do próprio site e busca <code>site:</code>, 21/08/2026.</p>
+        </div>
+        <div>
+          <div class="pagemap" id="pagemap"></div>
+          <div class="pgdetail" id="pgdetail">Selecione uma página para ver o que ela é.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="scene" data-t="Aluguel ou patrimônio">
+    <div class="wrap">
+      <div class="grid two">
+        <div>
+          <p class="eyebrow">Cena 04 · A escolha</p>
+          <h2>Anúncio é aluguel. Posição é patrimônio.</h2>
+          <p class="lede">
+            Não somos contra anúncio. Anúncio liga rápido e serve para testar oferta.
+            O problema é depender só dele: no dia em que o cartão para, a clínica some da internet.
+          </p>
+          <p class="lede" style="margin-top:16px">
+            Arraste o gasto mensal e o tempo. Depois <strong>desligue a torneira</strong>
+            e veja o que sobra de cada um.
+          </p>
+
+          <div class="field" style="margin-top:26px">
+            <label for="spend">Gasto mensal em anúncio <output id="spendo"></output></label>
+            <input type="range" id="spend" min="500" max="15000" step="250" value="3000">
+          </div>
+          <div class="field">
+            <label for="months">Tempo decorrido <output id="monthso"></output></label>
+            <input type="range" id="months" min="3" max="36" step="1" value="18">
+          </div>
+          <button class="switch" id="kill" aria-pressed="false">
+            <span class="track"><span class="knob"></span></span>
+            <span id="killlbl">Investimento ligado</span>
+          </button>
+          <p class="note">Os valores são os que você colocar. Nada aqui é estimativa nossa: é a sua própria conta, feita na frente.</p>
+        </div>
+        <div class="rentbox">
+          <div class="col paid">
+            <span class="tagk">Alugado</span>
+            <h3>Tráfego pago</h3>
+            <div class="meter" id="meterPaid"></div>
+            <div class="figure" id="paidFig">—</div>
+            <div class="sub" id="paidSub"></div>
+          </div>
+          <div class="col own">
+            <span class="tagk">Seu</span>
+            <h3>Tráfego orgânico</h3>
+            <div class="meter" id="meterOwn"></div>
+            <div class="figure" id="ownFig">—</div>
+            <div class="sub" id="ownSub"></div>
+          </div>
+        </div>
+      </div>
+      <div class="callout">
+        <div class="h">Para ser justo com o orgânico</div>
+        <p>
+          Orgânico não é de graça e não é instantâneo. Tem trabalho de implantação, tem manutenção
+          (conteúdo, avaliação, ficha atualizada) e leva de <b>três a seis meses</b> para as primeiras
+          posições firmarem. A diferença é o que acontece depois: a página continua trazendo gente
+          no mês em que você não fizer nada. O anúncio, não.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="scene" data-t="GEO">
+    <div class="wrap">
+      <div class="grid two">
+        <div>
+          <p class="eyebrow">Cena 05 · O que vem agora</p>
+          <h2>A próxima busca não devolve dez links. Devolve uma resposta.</h2>
+          <p class="lede">
+            Cada vez mais gente pergunta para uma IA <em class="hl">onde faço harmonização glútea em
+            Curitiba com segurança</em> e recebe um parágrafo com dois ou três nomes. Ou o seu está
+            nesse parágrafo, ou você não existe naquela busca. Não há segunda página.
+          </p>
+          <p class="lede" style="margin-top:16px">
+            GEO é escrever o site de um jeito que a máquina consiga afirmar o que você é,
+            onde fica, o que faz, quem executa e com qual credencial. Hoje o site declara
+            só o genérico.
+          </p>
+          <div class="callout" style="border-left-color:var(--jade)">
+            <div class="h" style="color:var(--jade)">A porta está aberta</div>
+            <p>
+              Conferimos o código das quatro clínicas de Curitiba que aparecem na primeira página
+              para esses termos. <b>Nenhuma delas</b> declara os dados estruturados de negócio local
+              ou de perguntas frequentes. Quem fizer primeiro pega a vaga barato. Daqui a um ano,
+              não pega.
+            </p>
+          </div>
+        </div>
+        <div>
+          <div class="tabs" role="tablist" aria-label="Estado dos dados estruturados">
+            <button class="tab" role="tab" aria-selected="true" data-geo="hoje">O que a máquina lê hoje</button>
+            <button class="tab" role="tab" aria-selected="false" data-geo="dep">O que passaria a ler</button>
+          </div>
+          <div class="machine" id="machine"></div>
+          <p class="note"><b>Fonte:</b> leitura do código-fonte de institutosuellengabardo.site, roundgluteo.com, harmonizacaodg.com.br e dragiselemilla.com.br em 21/08/2026.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="scene" data-t="Simulador">
+    <div class="wrap">
+      <p class="eyebrow">Cena 06 · A conta</p>
+      <h2>Quanto isso vira de faturamento</h2>
+      <p class="lede" style="margin-bottom:30px">
+        Os números abaixo são seus, não nossos. Ajuste com os dados reais da clínica
+        e a conta se refaz na hora.
+      </p>
+      <div class="sim">
+        <div>
+          <div class="field">
+            <label for="ticket">Ticket médio do procedimento <output id="ticketo"></output></label>
+            <input type="range" id="ticket" min="500" max="12000" step="100" value="1500">
+          </div>
+          <div class="field">
+            <label for="leads">Contatos novos por mês (orgânico) <output id="leadso"></output></label>
+            <input type="range" id="leads" min="0" max="60" step="1" value="20">
+          </div>
+          <div class="field">
+            <label for="close">Taxa de fechamento <output id="closeo"></output></label>
+            <input type="range" id="close" min="5" max="70" step="1" value="30">
+          </div>
+          <div class="field">
+            <label for="cpl">Custo por contato no anúncio <output id="cplo"></output></label>
+            <input type="range" id="cpl" min="10" max="300" step="5" value="80">
+          </div>
+          <p class="note">
+            <b>De onde vêm os valores iniciais:</b> o ticket de R$ 1.500 é apenas um marcador,
+            copiado de um anúncio público de pump glúteo de outra clínica, porque não temos o seu preço.
+            Contatos, fechamento e custo por contato começam em números redondos.
+            <b>Nada disso é estimativa de mercado</b> e volume de busca não foi estimado aqui:
+            isso só entra depois de abrir o Planejador de Palavras-chave e o seu Google Ads.
+          </p>
+        </div>
+        <div>
+          <div class="out">
+            <div class="line big">
+              <span class="lbl">Faturamento adicional por ano</span>
+              <span class="num" id="oYear">—</span>
+            </div>
+            <div class="line">
+              <span class="lbl">Faturamento adicional por mês</span>
+              <span class="num" id="oMonth">—</span>
+            </div>
+            <div class="line">
+              <span class="lbl">Procedimentos fechados por mês</span>
+              <span class="num" id="oCases">—</span>
+            </div>
+            <div class="line rent">
+              <span class="lbl">O que custaria comprar esses mesmos contatos em anúncio, por ano</span>
+              <span class="num" id="oAds">—</span>
+            </div>
+          </div>
+          <div class="callout" id="verdictSim">
+            <div class="h">Leitura</div>
+            <p id="simTxt"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="scene" data-t="Plano de 90 dias">
+    <div class="wrap">
+      <p class="eyebrow">Cena 07 · O caminho</p>
+      <h2>Noventa dias, em três blocos</h2>
+      <p class="lede" style="margin-bottom:28px">
+        Ordenado por quanto destrava dividido por quanto custa fazer.
+        Clique em cada item para ver o porquê.
+      </p>
+      <div id="plan"></div>
+      <div class="callout">
+        <div class="h">Uma trava que agência nenhuma vai te avisar</div>
+        <p>
+          Página de procedimento é texto publicado com o seu nome e o seu registro embaixo.
+          Você é <b>fisioterapeuta dermatofuncional, CREFITO-8/PR 267864</b>, e o que pode ser
+          escrito, prometido e ilustrado muda conforme o procedimento esteja dentro ou fora
+          do escopo do conselho. Um texto mal calibrado vira material contra você em reclamação
+          e em processo.
+        </p>
+        <p>
+          Todo conteúdo publicado passa por conferência jurídica antes de subir. É o único ponto
+          desta proposta que não é marketing, e é justamente o que já sabemos do seu caso.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="scene" data-t="Fecho">
+    <div class="wrap">
+      <p class="eyebrow">Cena 08 · O ponto</p>
+      <h2>Você construiu a demanda.<br>Falta construir onde ela cai.</h2>
+      <p class="lede">
+        84 mil seguidores é uma coisa que quase ninguém tem e que dinheiro nenhum compra rápido.
+        Você já fez a parte difícil. O que falta é a parte barata, e ela está inteira sem dono.
+      </p>
+      <ul class="close-list">
+        <li><span class="m">01</span><span>Uma página por procedimento, com o nome que a pessoa digita, <b>no seu domínio</b>.</span></li>
+        <li><span class="m">02</span><span>Uma página do <b>Pump Glúteo Gabardo</b>, para o método ter endereço próprio e não só um perfil.</span></li>
+        <li><span class="m">03</span><span>A ficha do Google arrumada e alimentada, que é a vitrine de maior intenção de compra que existe.</span></li>
+        <li><span class="m">04</span><span>Os dados estruturados que fazem a IA saber te citar, enquanto o resto de Curitiba não fez.</span></li>
+        <li><span class="m">05</span><span>Anúncio continua ligado se você quiser, mas passa a ser escolha, não coleira.</span></li>
+      </ul>
+      <div class="callout" style="border-left-color:var(--rose)">
+        <div class="h" style="color:var(--rose)">Como conferir que funcionou</div>
+        <p>
+          Nada aqui é para ser acreditado. As mesmas três buscas da Cena 01 são refeitas
+          no dia 1 de cada mês, junto com o número de páginas indexadas, avaliações no Google
+          e contatos recebidos. <b>Se a posição não mudar, aparece no relatório.</b>
+        </p>
+      </div>
+      <p class="note" style="margin-top:30px">
+        Diagnóstico técnico: AdsVenture, 11/08/2026 · Verificação em campo e apresentação: 21/08/2026 ·
+        Todos os números desta apresentação são verificáveis refazendo as buscas citadas.
+      </p>
+    </div>
+  </section>
+</main>
+
+<div class="hint" id="hint">↑ ↓ para navegar</div>
+
+<script>
+(() => {
+  "use strict";
+  const brl = n => "R$ " + Math.round(n).toLocaleString("pt-BR");
+  const $ = s => document.querySelector(s);
+
+  /* ---------------- régua e navegação ---------------- */
+  const scenes = [...document.querySelectorAll(".scene")];
+  const ticks = $("#ticks");
+  scenes.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.className = "tick";
+    b.type = "button";
+    b.setAttribute("aria-label", s.dataset.t);
+    b.innerHTML = '<span class="tno">' + String(i).padStart(2, "0") + " · " + s.dataset.t + "</span>";
+    b.addEventListener("click", () => goTo(i));
+    ticks.appendChild(b);
+  });
+  const tickEls = [...ticks.children];
+  const deck = $("#deck");
+  const topbar = $("#topfill"), tbpos = $("#tbpos");
+
+  // No computador quem rola e o deck; no celular e a propria pagina.
+  const isPhone = () => window.innerWidth <= 760;
+  const scroller = () => (isPhone() ? document.scrollingElement || document.documentElement : deck);
+  const scrollNow = () => scroller().scrollTop;
+  const topOf = i => {
+    const r = scenes[i].getBoundingClientRect();
+    if (isPhone()) return r.top + (window.scrollY || document.documentElement.scrollTop || 0);
+    return r.top - deck.getBoundingClientRect().top + deck.scrollTop;
+  };
+  const currentIndex = () => {
+    const st = scrollNow() + (isPhone() ? 60 : 4);
+    let best = 0;
+    scenes.forEach((_, i) => { if (topOf(i) <= st) best = i; });
+    return best;
+  };
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let anim = 0;
+  const ease = p => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+  function scrollDeckTo(top) {
+    clearInterval(anim);
+    const sc = scroller();
+    const start = sc.scrollTop, delta = top - start;
+    if (Math.abs(delta) < 2) return;
+    if (reduce) { sc.scrollTop = top; return; }
+    const t0 = Date.now(), dur = Math.min(760, 260 + Math.abs(delta) * 0.32);
+    anim = setInterval(() => {
+      const p = Math.min(1, (Date.now() - t0) / dur);
+      sc.scrollTop = start + delta * ease(p);
+      if (p >= 1) clearInterval(anim);
+    }, 16);
+  }
+  const goTo = i => {
+    const n = Math.max(0, Math.min(scenes.length - 1, i));
+    scrollDeckTo(topOf(n));
+    markRail(n);
+  };
+  function markRail(i) {
+    tickEls.forEach((t, j) => t.setAttribute("aria-current", String(j === i)));
+    if (tbpos) tbpos.textContent = String(i).padStart(2, "0") + " · " + scenes[i].dataset.t;
+    if (topbar) {
+      const sc = scroller(), span = sc.scrollHeight - sc.clientHeight;
+      topbar.style.width = (span > 0 ? Math.min(100, (sc.scrollTop / span) * 100) : 0).toFixed(1) + "%";
+    }
+  }
+  let rt = 0;
+  const onScroll = () => {
+    if (rt) return;
+    rt = setTimeout(() => { rt = 0; markRail(currentIndex()); }, 90);
+  };
+  deck.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("scroll", onScroll, { passive: true });
+  document.addEventListener("scroll", onScroll, { passive: true, capture: true });
+  window.addEventListener("resize", () => markRail(currentIndex()));
+  // Rede de seguranca: ha navegador que nao dispara scroll em rolagem programatica.
+  let lastPos = -1;
+  setInterval(() => {
+    const y = Math.round(scrollNow());
+    if (y === lastPos) return;
+    lastPos = y;
+    markRail(currentIndex());
+  }, 250);
+  markRail(0);
+  document.addEventListener("keydown", e => {
+    if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
+    const map = { ArrowDown: 1, PageDown: 1, ArrowRight: 1, ArrowUp: -1, PageUp: -1, ArrowLeft: -1 };
+    if (e.key === "Home") { e.preventDefault(); return goTo(0); }
+    if (e.key === "End") { e.preventDefault(); return goTo(scenes.length - 1); }
+    if (!(e.key in map)) return;
+    e.preventDefault();
+    goTo(currentIndex() + map[e.key]);
+  });
+  setTimeout(() => { const h = $("#hint"); if (h) h.style.opacity = "0"; }, 6000);
+
+  /* ---------------- capa: linhas de contorno ---------------- */
+  const cv = $("#contour");
+  if (cv) {
+    const ctx = cv.getContext("2d");
+    const draw = () => {
+      const r = cv.parentElement.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cv.width = r.width * dpr; cv.height = r.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, r.width, r.height);
+      if (r.height < 200 || r.width < 200) return;
+      const cx = r.width * 0.82, cy = r.height * 0.5;
+      const base = r.height * 0.12, step = r.height * 0.055;
+      for (let i = 0; i < 22; i++) {
+        const t = i / 21;
+        ctx.beginPath();
+        ctx.strokeStyle = "rgba(232,180,172," + (0.17 - t * 0.13).toFixed(3) + ")";
+        ctx.lineWidth = 1;
+        for (let a = 0; a <= Math.PI * 2 + 0.05; a += 0.05) {
+          const rad = (base + i * step) * (1 + 0.17 * Math.sin(a * 2 + i * 0.28) + 0.07 * Math.sin(a * 3 - i * 0.15));
+          const x = cx + Math.cos(a) * rad * 0.72;
+          const y = cy + Math.sin(a) * rad;
+          a === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+    };
+    draw();
+    window.addEventListener("load", draw);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+    if (window.ResizeObserver) {
+      let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(draw, 60); }).observe(cv.parentElement);
+    }
+    let to; window.addEventListener("resize", () => { clearTimeout(to); to = setTimeout(draw, 180); });
+  }
+
+  /* ---------------- cena 1: SERP ---------------- */
+  const SERP = [
+    {
+      q: "harmonização glútea curitiba",
+      v: '<b>O seu Instagram ganha essa busca.</b> O seu site não está em lugar nenhum dela. Três concorrentes aparecem com o site próprio, que é o ativo que fica quando o algoritmo do Instagram muda.',
+      r: [
+        { p: 1, k: "ela", t: "Dra. Suellen Gabardo · Harmonização Glútea", s: "Instagram · dra.suellengabardo", c: "ig", cl: "Instagram", x: "Mais de 84 mil seguidores. Criadora do PUMP GLÚTEO GABARDO®." },
+        { p: 2, k: "rival", t: "Leticia Bueno | Harmonização | Curitiba", s: "Instagram · draleticiabueno", c: "ig", cl: "Instagram", x: "Mais de 4,4 mil seguidores. Dezenove vezes menos audiência, uma posição atrás." },
+        { p: 3, k: "rival", t: "Harmonização de glúteo em Curitiba", s: "harmonizacaodg.com.br", c: "site", cl: "Site próprio", x: "Página dedicada ao procedimento, no domínio da clínica." },
+        { p: 4, k: "rival", t: "Round Glúteo | Harmonização Glútea em Curitiba | Dra. Natasha Ramos", s: "roundgluteo.com", c: "site", cl: "Site próprio", x: "Método de marca própria com domínio próprio. O espelho exato do Pump Glúteo Gabardo." },
+        { p: 5, k: "rival", t: "Dra. Ariane Almeida · Protocolo Bumbum Up", s: "draarianealmeida.com.br", c: "site", cl: "Site próprio", x: "" },
+        { p: 6, k: "rival", t: "Preenchimento Glúteo", s: "clinicajulianabattiston.com.br", c: "site", cl: "Site próprio", x: "" },
+        { p: 7, k: "rival", t: "Remodelação Glútea", s: "Instagram · dranicolelocatelli", c: "ig", cl: "Instagram", x: "Mais de 26 mil seguidores." },
+        { p: 9, k: "rival", t: "Dra. Gisele Milla · harmonização facial e corporal, Batel", s: "dragiselemilla.com.br", c: "site", cl: "Site próprio", x: "" },
+        { p: "—", k: "aus", t: "institutosuellengabardo.site", s: "Não aparece na primeira página", c: "phd", cl: "Ausente", x: "O site do Instituto não tem nenhuma página sobre este procedimento." }
+      ]
+    },
+    {
+      q: "pump glúteo",
+      v: '<b>Esta é a busca mais séria da apresentação.</b> A primeira página do termo que você registrou está inteira com a PHD e com clínicas revendendo o produto dela. Você está discutindo a marca na Justiça e perdendo o nome no lugar onde o cliente procura. O processo decide de quem é a marca. O Google decide de quem é a procura.',
+      r: [
+        { p: 1, k: "phd", t: "O Pump Glúteo da PHD do Brasil é um procedimento estético injetável...", s: "Instagram · esteticamichelly.gama", c: "phd", cl: "PHD", x: "" },
+        { p: 2, k: "phd", t: "Pump Glúteo da PHD", s: "procorpoestetica.com.br/pump-gluteo", c: "site", cl: "Página dedicada", x: "Rede grande, com uma página inteira para o termo." },
+        { p: 3, k: "rival", t: "O que é pump UP glúteo?", s: "YouTube · Prosa Com Nath Souza", c: "ig", cl: "Vídeo", x: "" },
+        { p: 4, k: "rival", t: "Técnica de sucção promete bumbum na nuca e atrai...", s: "G1 · Globo, 2015", c: "ig", cl: "Notícia", x: "Matéria de onze anos atrás ainda ocupa a primeira página." },
+        { p: 5, k: "phd", t: "PREPARO E APLICAÇÃO DO NOVO PRODUTO PUMP GLÚTEO DA PHD", s: "YouTube · Instituto La Vie", c: "phd", cl: "PHD", x: "Mais de 44,8 mil visualizações ensinando a aplicar o produto do outro lado." },
+        { p: 7, k: "rival", t: "Pump Gluteo · R$ 1.499,00", s: "esteticaweb.com.br", c: "site", cl: "Com preço", x: "Aparece já com o preço no resultado. É o que a pessoa compara." },
+        { p: "—", k: "aus", t: "Instituto Suellen Gabardo", s: "Não aparece na primeira página", c: "phd", cl: "Ausente", x: 'O Google aprendeu que "pump glúteo" é PHD: as buscas relacionadas que ele sugere são "pump glúteo PHD valor" e "pump glúteo PHD comprar".' }
+      ]
+    },
+    {
+      q: "pump glúteo gabardo",
+      v: '<b>Aqui você ganha, mas ganha de aluguel.</b> Com o seu sobrenome colado no termo, o resultado é quase todo Instagram. O seu site aparece uma vez, com a home, porque não existe uma página do método. O ativo mais valioso da clínica não tem endereço próprio.',
+      r: [
+        { p: 1, k: "ela", t: "Dra. Suellen Gabardo · Harmonização Glútea", s: "Instagram · dra.suellengabardo", c: "ig", cl: "Instagram", x: "Criadora do PUMP GLÚTEO GABARDO® e SG Gota 4D®." },
+        { p: 2, k: "ela", t: "PUMP GLÚTEO com Elas! O treino que promete...", s: "Instagram · reel", c: "ig", cl: "Instagram", x: "" },
+        { p: 3, k: "ela", t: "Home · institutosuellengabardo.site", s: "institutosuellengabardo.site", c: "site", cl: "Home", x: "Única aparição do site, e é a home. O método é citado no meio de uma lista de serviços." },
+        { p: 4, k: "ela", t: "O Método Pump Glúteo Gabardo, associado ao ácido hialurônico...", s: "Instagram · Reels", c: "ig", cl: "Instagram", x: "" },
+        { p: 5, k: "ela", t: "A dermatofuncional Dra. Suellen Gabardo, criadora do método exclusivo...", s: "Instagram", c: "ig", cl: "Instagram", x: "" },
+        { p: "—", k: "aus", t: "Página do método Pump Glúteo Gabardo", s: "Não existe", c: "phd", cl: "Não existe", x: "Não há no site uma página que explique o método, quem executa, onde é feito e o que esperar." }
+      ]
+    }
+  ];
+  const serpList = $("#serplist"), serpQ = $("#serpq"), serpV = $("#serpv");
+  function renderSerp(i) {
+    const d = SERP[i];
+    serpQ.textContent = d.q;
+    serpV.innerHTML = d.v;
+    serpList.innerHTML = d.r.map(r => (
+      '<div class="res" data-kind="' + r.k + '">' +
+        '<span class="pos">' + r.p + "</span>" +
+        "<div>" +
+          '<p class="ttl">' + r.t + '<span class="chip ' + r.c + '">' + r.cl + "</span></p>" +
+          '<span class="src">' + r.s + "</span>" +
+          (r.x ? '<p class="tagline">' + r.x + "</p>" : "") +
+        "</div>" +
+      "</div>"
+    )).join("");
+    serpList.scrollTop = 0;
+  }
+  document.querySelectorAll("[data-q]").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll("[data-q]").forEach(x => x.setAttribute("aria-selected", "false"));
+    b.setAttribute("aria-selected", "true");
+    renderSerp(+b.dataset.q);
+  }));
+  renderSerp(0);
+
+  /* ---------------- cena 2: barras ---------------- */
+  const CLIN = [
+    { n: "Instituto Suellen Gabardo", d: "institutosuellengabardo.site", seg: 84000, pag: 2, ela: true, pos: "site ausente" },
+    { n: "Round Glúteo · Dra. Natasha Ramos", d: "roundgluteo.com", seg: 34000, pag: 8, pos: "4ª com o site" },
+    { n: "Dra. Nicole Locatelli", d: "Instagram", seg: 26000, pag: null, pos: "7ª com o Instagram" },
+    { n: "Harmonização DG", d: "harmonizacaodg.com.br", seg: null, pag: 25, pos: "3ª com o site" },
+    { n: "Dra. Leticia Bueno", d: "Instagram", seg: 4400, pag: null, pos: "2ª com o Instagram" }
+  ];
+  const barsEl = $("#bars"), barsV = $("#barsv");
+  function renderBars(metric) {
+    const rows = CLIN.filter(c => c[metric] !== null).sort((a, b) => b[metric] - a[metric]);
+    const max = Math.max(...rows.map(r => r[metric]));
+    barsEl.innerHTML = rows.map(c => {
+      const w = (c[metric] / max) * 100;
+      const col = c.ela ? "var(--rose)" : (metric === "seg" ? "var(--violet)" : "var(--jade)");
+      const val = metric === "seg"
+        ? (c.seg >= 1000 ? (c.seg / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + " mil" : c.seg)
+        : c.pag;
+      return '<div class="bar-row' + (c.ela ? " ela" : "") + '">' +
+        '<div class="who">' + c.n + "<small>" + c.pos + "</small></div>" +
+        '<div class="bar-track"><i class="bar-fill" style="background:' + col + '"></i></div>' +
+        '<div class="val">' + val + "</div></div>";
+    }).join("");
+    setTimeout(() => {
+      barsEl.querySelectorAll(".bar-fill").forEach((f, i) => {
+        f.style.width = ((rows[i][metric] / max) * 100).toFixed(1) + "%";
+      });
+    }, 24);
+    barsV.innerHTML = metric === "seg"
+      ? 'No Instagram você lidera com folga: <b>duas vezes e meia</b> o Round Glúteo e <b>dezenove vezes</b> a Leticia Bueno.'
+      : 'No Google a ordem se inverte. A Harmonização DG tem <b>25 páginas</b> encontráveis, o Round Glúteo tem <b>8</b>, o Instituto tem <b>2</b>, e nenhuma das duas é sobre um procedimento.';
+  }
+  document.querySelectorAll("[data-m]").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll("[data-m]").forEach(x => x.setAttribute("aria-selected", "false"));
+    b.setAttribute("aria-selected", "true");
+    renderBars(b.dataset.m);
+  }));
+  renderBars("seg");
+
+  /* ---------------- cena 3: mapa de páginas ---------------- */
+  const PAGES = [
+    { u: "/", c: "Home", ix: 1, d: "<b>Indexada.</b> É a página que carrega tudo: todos os serviços, todas as categorias, um FAQ inteiro. Sem nenhuma tag H1 e com o título <b>Home - institutosuellengabardo.site</b>, que é o que o Google mostra hoje. Uma página só não consegue ranquear para dezenas de procedimentos diferentes." },
+    { u: "/treinamento-paciente-modelo/", c: "Funil de curso", ix: 1, d: "<b>Indexada.</b> É a segunda e última página que o Google conhece do site. Capta paciente modelo para treinamento, ou seja, das duas páginas encontráveis do Instituto, uma vende curso." },
+    { u: "/treinamento/", c: "Funil de curso", ix: 0, d: "Não indexada. É uma página órfã: nenhum link dentro do site aponta para ela, então o Google nunca a descobriu. Não há bloqueio, há falta de caminho." },
+    { u: "/treinamento-pro/", c: "Funil de curso", ix: 0, d: "Não indexada. Mesma causa: sem menu de navegação, sem link de entrada." },
+    { u: "/treinamento-lista/", c: "Funil de curso", ix: 0, d: "Não indexada. Página de captação de lista para o treinamento." },
+    { u: "/treinamento-obrigado/", c: "Página de agradecimento", ix: 0, d: "Não indexada, e não deveria nem estar no sitemap. Página de agradecimento pós-cadastro é para ficar fora do índice de propósito. É sujeira técnica, e mostra que o sitemap nunca foi revisado." },
+    { u: "/bodyshape/", c: "Equipamento", ix: 0, d: "<b>O desperdício mais claro do site.</b> É uma landing page bem escrita sobre um tratamento, pronta, publicada, e invisível: nenhum link aponta para ela e o Google não a conhece. Trabalho já pago e rendendo zero." },
+    { u: "/links/", c: "Lista de links", ix: 0, d: "Não indexada. É a página de bio, aquele índice de links do Instagram. Existe para o clique que já veio de fora, não para trazer gente." }
+  ];
+  const pm = $("#pagemap"), pd = $("#pgdetail");
+  pm.innerHTML = PAGES.map((p, i) => (
+    '<button class="pg" type="button" data-ix="' + p.ix + '" data-i="' + i + '" aria-pressed="false">' +
+      '<span class="url">' + p.u + "</span>" +
+      '<span class="cat">' + p.c + "</span>" +
+      '<span class="st">' + (p.ix ? "◆ indexada" : "◇ invisível") + "</span>" +
+    "</button>"
+  )).join("");
+  pm.addEventListener("click", e => {
+    const b = e.target.closest(".pg"); if (!b) return;
+    pm.querySelectorAll(".pg").forEach(x => x.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", "true");
+    pd.innerHTML = PAGES[+b.dataset.i].d;
+  });
+
+  /* ---------------- cena 4: aluguel x patrimônio ---------------- */
+  const spend = $("#spend"), months = $("#months"), kill = $("#kill");
+  function renderRent() {
+    const s = +spend.value, m = +months.value, dead = kill.getAttribute("aria-pressed") === "true";
+    $("#spendo").textContent = brl(s) + " / mês";
+    $("#monthso").textContent = m + (m === 1 ? " mês" : " meses");
+    $("#killlbl").textContent = dead ? "Investimento desligado" : "Investimento ligado";
+
+    const n = 16;
+    const paid = [], own = [];
+    for (let i = 0; i < n; i++) {
+      const t = i / (n - 1);
+      const off = dead && t > 0.66;
+      paid.push(off ? 0.02 : 0.55 + 0.1 * Math.sin(i * 1.7));
+      const ramp = 1 / (1 + Math.exp(-(t * 10 - 4.4)));
+      own.push(0.06 + ramp * 0.9);
+    }
+    const paint = (id, arr) => {
+      const el = $(id);
+      if (el.children.length !== arr.length) el.innerHTML = arr.map(() => "<i></i>").join("");
+      [...el.children].forEach((b, i) => { b.style.height = (arr[i] * 100).toFixed(1) + "%"; b.style.opacity = arr[i] < 0.05 ? ".25" : "1"; });
+    };
+    paint("#meterPaid", paid); paint("#meterOwn", own);
+
+    $("#paidFig").textContent = brl(s * m);
+    $("#paidFig").style.color = "var(--violet)";
+    $("#paidSub").innerHTML = dead
+      ? "Foi o total pago em " + m + " meses. No dia em que parou, o tráfego caiu para <b style='color:var(--coral)'>perto de zero</b> e não sobrou nada comprado com esse dinheiro."
+      : "É o total já pago em " + m + " meses de anúncio. Enquanto o cartão passa, a torneira corre. É custo, não é acervo.";
+
+    $("#ownFig").textContent = dead ? "Continua de pé" : "Cresce sozinho";
+    $("#ownFig").style.color = "var(--jade)";
+    $("#ownSub").innerHTML = dead
+      ? "As páginas ranqueadas <b>não desligam junto</b>. Elas continuam sendo encontradas no mês seguinte, com ou sem investimento novo."
+      : "Cada página que sobe fica subida. O trabalho do mês passado ainda está trabalhando no mês que vem.";
+  }
+  [spend, months].forEach(el => el.addEventListener("input", renderRent));
+  kill.addEventListener("click", () => {
+    kill.setAttribute("aria-pressed", kill.getAttribute("aria-pressed") === "true" ? "false" : "true");
+    renderRent();
+  });
+  renderRent();
+
+  /* ---------------- cena 5: GEO ---------------- */
+  const GEO = {
+    hoje: '<span class="cmt">// o que os robôs conseguem afirmar sobre o Instituto hoje</span>\n' +
+      '<span class="k">tipo</span>          <span class="v">"Organization"</span>  <span class="cmt">// uma organização qualquer</span>\n' +
+      '<span class="k">nome</span>          <span class="v">"Home - institutosuellengabardo.site"</span>\n' +
+      '<span class="k">endereço</span>      <span class="miss">não declarado</span>\n' +
+      '<span class="k">telefone</span>      <span class="miss">não declarado</span>\n' +
+      '<span class="k">horário</span>       <span class="miss">não declarado</span>\n' +
+      '<span class="k">serviços</span>      <span class="miss">não declarados</span>\n' +
+      '<span class="k">profissional</span>  <span class="miss">não declarado</span>\n' +
+      '<span class="k">registro</span>      <span class="miss">não declarado</span>\n' +
+      '<span class="k">perguntas</span>     <span class="miss">não declaradas</span> <span class="cmt">// existe um FAQ ótimo na página, invisível para a máquina</span>\n' +
+      '<span class="k">avaliações</span>    <span class="miss">não declaradas</span>\n\n' +
+      '<span class="cmt">// resultado: a IA sabe que é um site. Não sabe que é uma clínica em Curitiba.</span>',
+    dep: '<span class="cmt">// o mesmo site, depois de declarar o que ele já é</span>\n' +
+      '<span class="k">tipo</span>          <span class="add">"MedicalBusiness"</span>\n' +
+      '<span class="k">nome</span>          <span class="v">"Instituto Suellen Gabardo"</span>\n' +
+      '<span class="k">endereço</span>      <span class="add">Av. Visc. de Guarapuava, 2764, salas 1711/1712, Centro, Curitiba/PR</span>\n' +
+      '<span class="k">telefone</span>      <span class="add">declarado, igual ao da ficha do Google</span>\n' +
+      '<span class="k">horário</span>       <span class="add">ter a sex 9h às 19h · sáb até 14h</span>\n' +
+      '<span class="k">serviços</span>      <span class="add">harmonização glútea · Pump Glúteo Gabardo® · SG Gota 4D® · corporal · facial</span>\n' +
+      '<span class="k">profissional</span>  <span class="add">Suellen Alves Gabardo</span>\n' +
+      '<span class="k">registro</span>      <span class="add">fisioterapeuta dermatofuncional, CREFITO-8/PR 267864</span>\n' +
+      '<span class="k">perguntas</span>     <span class="add">FAQ estruturado, o mesmo texto que já está no site</span>\n' +
+      '<span class="k">avaliações</span>    <span class="add">4,8 de 5</span>\n\n' +
+      '<span class="cmt">// resultado: a máquina passa a ter o que citar, com credencial e endereço.</span>\n' +
+      '<span class="cmt">// nada disso muda uma vírgula do visual do site.</span>'
+  };
+  const mach = $("#machine");
+  mach.innerHTML = GEO.hoje;
+  document.querySelectorAll("[data-geo]").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll("[data-geo]").forEach(x => x.setAttribute("aria-selected", "false"));
+    b.setAttribute("aria-selected", "true");
+    mach.innerHTML = GEO[b.dataset.geo];
+  }));
+
+  /* ---------------- cena 6: simulador ---------------- */
+  const ticket = $("#ticket"), leads = $("#leads"), close = $("#close"), cpl = $("#cpl");
+  function renderSim() {
+    const t = +ticket.value, l = +leads.value, c = +close.value / 100, p = +cpl.value;
+    const cases = l * c, month = cases * t, year = month * 12, ads = l * p * 12;
+    document.getElementById("ticketo").textContent = brl(t);
+    $("#leadso").textContent = l + " contatos";
+    $("#closeo").textContent = (+close.value) + "%";
+    $("#cplo").textContent = brl(p);
+    $("#oCases").textContent = cases.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+    $("#oMonth").textContent = brl(month);
+    $("#oYear").textContent = brl(year);
+    $("#oAds").textContent = brl(ads);
+    const ratio = ads > 0 ? year / ads : 0;
+    $("#simTxt").innerHTML = l === 0
+      ? "Com zero contato novo pelo orgânico, que é aproximadamente a situação de hoje, o resultado é zero. Arraste o segundo controle."
+      : "Esses <b>" + l + " contatos por mês</b> viriam de páginas que continuam existindo depois de prontas. " +
+        "Comprar o mesmo volume em anúncio custaria <b>" + brl(ads) + " por ano</b>, todo ano, e para no mês em que você parar de pagar. " +
+        (ratio >= 1
+          ? "O faturamento projetado é <b>" + ratio.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + " vezes</b> esse custo de aluguel."
+          : "Nesse ajuste o custo do anúncio come o resultado: é exatamente o cenário que a gente quer evitar.");
+  }
+  [ticket, leads, close, cpl].forEach(el => el.addEventListener("input", renderSim));
+  renderSim();
+
+  /* ---------------- cena 7: plano ---------------- */
+  const PLAN = [
+    {
+      p: "Bloco 1", t: "Parar de perder o que já está pago", w: "semanas 1 e 2", items: [
+        { w: "alto", h: "Consertar o link dos produtos na ficha do Google", b: "Testado item a item: o botão de site dentro dos produtos da ficha abre o Instagram, não o site. É o clique de maior intenção de compra que a ficha gera, e ele está sendo desviado. Correção de campo, leva minutos." },
+        { w: "alto", h: "Padronizar o endereço entre o site e a ficha", b: "O FAQ do site diz sala 1711, a ficha do Google diz sala 1712. As duas salas são suas, mas o Google não sabe disso e usa a divergência como sinal de que o negócio é menos confiável. Uma citação única, igual nos dois lugares, com uma frase explicando que o Instituto ocupa as duas." },
+        { w: "alto", h: "Ligar as páginas órfãs e mandar para o Search Console", b: "Seis das oito páginas nunca foram descobertas, incluindo a /bodyshape/, que já está escrita e publicada. Linkar a partir da home e enviar manualmente. Trabalho já pago, hoje rendendo zero." },
+        { w: "medio", h: "Trocar o link do YouTube", b: "O ícone do rodapé aponta para studio.youtube.com, a área de administração que exige login. Quem clica cai em erro de acesso. O link público do canal já existe em outro ponto do código." }
+      ]
+    },
+    {
+      p: "Bloco 2", t: "Dar endereço ao que a clínica vende", w: "semanas 3 a 8", items: [
+        { w: "alto", h: "Uma página para o Pump Glúteo Gabardo®", b: "É a peça central. O método é seu, está registrado e é o motivo pelo qual a maior parte das 84 mil pessoas te segue, mas hoje ele não tem uma página no seu domínio, só posts. Com página própria, o método passa a ter um endereço que você controla, que pode ser citado, linkado, mostrado em processo e lido por IA. Enquanto isso não existe, a busca por pump glúteo continua sendo respondida pela PHD." },
+        { w: "alto", h: "Uma página por procedimento de maior busca", b: "Harmonização glútea, harmonização corporal, harmonização facial, depilação a laser, e por aí. Cada uma com o nome que a pessoa realmente digita e a cidade no título. É o que a Harmonização DG faz com 25 páginas e o Round Glúteo faz com 8. Não é volume por volume: é uma página por intenção de compra." },
+        { w: "alto", h: "Cadastrar produtos nas 5 categorias que faltam na ficha", b: "A ficha só tem produto em harmonização corporal. Facial, capilar, eletroterapia, estética avançada e Protocoll ficam invisíveis em buscas de volume alto, mesmo com o Instituto oferecendo tudo isso." },
+        { w: "medio", h: "H1, título e descrição escritos à mão", b: "A home inteira não tem uma única tag H1, que é o sinal mais forte que o Google usa para entender do que a página trata, e o título exibido é Home - institutosuellengabardo.site. Correção rápida e obrigatória antes de qualquer página nova." },
+        { w: "medio", h: "Texto alternativo nas imagens e compressão", b: "Zero das 38 imagens da home tem texto alternativo, o que significa zero presença no Google Imagens e barreira para leitor de tela. A home pesa cerca de 2 MB e a nota de desempenho no celular é 60 de 100, com a maior parte da página aparecendo só aos 9,9 segundos." }
+      ]
+    },
+    {
+      p: "Bloco 3", t: "Ocupar a vaga que ninguém ocupou", w: "semanas 9 a 12", items: [
+        { w: "base", h: "Dados estruturados de negócio local e de FAQ", b: "Nenhuma das quatro clínicas que aparecem na primeira página de Curitiba declara isso. É a diferença entre a IA saber que existe um site e a IA saber que existe uma clínica em Curitiba, com este endereço, este horário, estes procedimentos e esta profissional registrada. Ganho técnico puro, sem mexer no visual." },
+        { w: "base", h: "Campanha de avaliação no Google", b: "43 avaliações para 84 mil seguidores é a maior desproporção do diagnóstico. Uma clínica concorrente que anuncia no Maps tem 665. Placa com QR Code no atendimento e pedido no fluxo de saída resolvem sem custo de mídia." },
+        { w: "base", h: "Assumir o controle da busca pelo seu nome", b: "Quem pesquisa Instituto Suellen Gabardo encontra o Reclame Aqui na primeira página. Esse caso já está sendo tratado juridicamente. Aqui o trabalho é outro: ocupar as posições da busca de marca com páginas suas, para que o resultado da sua marca seja você." },
+        { w: "base", h: "Formulário no site, além do WhatsApp", b: "Hoje todo botão do site cai no WhatsApp. É bom canal e continua, mas é canal único: quem não quer conversar na hora não tem por onde deixar o contato, e você não fica com registro nenhum de quem passou." },
+        { w: "base", h: "Relatório mensal com as mesmas buscas", b: "No dia 1 de cada mês, refazer as três buscas da Cena 01, contar páginas indexadas, avaliações e contatos recebidos. É como se confere se o dinheiro está virando resultado." }
+      ]
+    }
+  ];
+  $("#plan").innerHTML = PLAN.map(ph => (
+    '<div class="phase">' +
+      '<div class="phase-h"><span class="p">' + ph.p + '</span><span class="t">' + ph.t + '</span><span class="w">' + ph.w + "</span></div>" +
+      ph.items.map(it => (
+        '<div class="item" data-w="' + it.w + '" aria-expanded="false">' +
+          '<button type="button"><span class="dot"></span><span>' + it.h + '</span><span class="plus">+</span></button>' +
+          '<div class="body">' + it.b + "</div>" +
+        "</div>"
+      )).join("") +
+    "</div>"
+  )).join("");
+  $("#plan").addEventListener("click", e => {
+    const b = e.target.closest(".item > button"); if (!b) return;
+    const it = b.parentElement;
+    it.setAttribute("aria-expanded", it.getAttribute("aria-expanded") === "true" ? "false" : "true");
+  });
+})();
+</script>
