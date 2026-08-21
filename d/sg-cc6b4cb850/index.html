@@ -880,7 +880,9 @@
   const topbar = $("#topfill"), tbpos = $("#tbpos");
 
   // No computador quem rola e o deck; no celular e a propria pagina.
-  const isPhone = () => window.innerWidth <= 760;
+  // Mesma fonte de verdade do CSS: innerWidth pode vir 0 em aba oculta.
+  const phoneMQ = window.matchMedia("(max-width: 760px)");
+  const isPhone = () => phoneMQ.matches;
   const scroller = () => (isPhone() ? document.scrollingElement || document.documentElement : deck);
   const scrollNow = () => scroller().scrollTop;
   const topOf = i => {
